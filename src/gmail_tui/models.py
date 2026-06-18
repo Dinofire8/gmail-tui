@@ -2,6 +2,23 @@ import base64
 from dataclasses import dataclass, field
 
 
+def _decode_body(payload: dict) -> str:
+    data = payload.get("body", {}).get("data", "")
+    if data:
+        return base64.urlsafe_b64decode(data + "==").decode("utf-8", errors="replace")
+    for part in payload.get("parts", []):
+        if part.get("mimeType") == "text/plain":
+            data = part.get("body", {}).get("data", "")
+            if data:
+                return base64.urlsafe_b64decode(data + "==").decode("utf-8", errors="replace")
+    for part in payload.get("parts", []):
+        if part.get("parts"):
+            result = _decode_body(part)
+            if result:
+                return result
+    return ""
+
+
 @dataclass
 class Email:
     id: str
@@ -20,8 +37,8 @@ class Email:
         thread_id = data["threadId"]
         snippet = data.get("snippet", "")
         label_ids = data.get("labelIds", [])
-
-        headers = data["payload"]["headers"]
+        payload = data.get("payload", {})
+        headers = payload.get("headers", [])
 
         def get_header(name: str) -> str:
             for h in headers:
@@ -29,19 +46,14 @@ class Email:
                     return h["value"]
             return ""
 
-        subject = get_header("Subject")
-        sender = get_header("From")
-        to = get_header("To")
-        date = get_header("Date")
-
         return cls(
             id=id,
             thread_id=thread_id,
-            subject=subject,
-            sender=sender,
-            to=to,
-            date=date,
-            body="",
+            subject=get_header("Subject"),
+            sender=get_header("From"),
+            to=get_header("To"),
+            date=get_header("Date"),
+            body=_decode_body(payload),
             snippet=snippet,
             label_ids=label_ids,
         )

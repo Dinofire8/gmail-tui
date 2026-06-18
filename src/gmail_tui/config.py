@@ -1,11 +1,13 @@
 from pathlib import Path
 import json
 
+VERSION = "0.1.0"
+
 DEFAULT_CONFIG = {
     "theme": {
         "primary": "#9b59b6",
         "secondary": "#6c3483",
-        "background": "#1a1a2e",
+        "background": "#050226",
         "surface": "#16213e",
         "text": "#e0e0e0",
         "text_muted": "#888888",

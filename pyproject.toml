@@ -7,7 +7,11 @@ authors = [
     { name = "owen", email = "dinofire@tuta.io" }
 ]
 requires-python = ">=3.14"
-dependencies = []
+dependencies = [
+    "google-api-python-client>=2.197.0",
+    "google-auth-oauthlib>=1.4.0",
+    "textual>=8.2.7",
+]
 
 [project.scripts]
 gmail-tui = "gmail_tui:main"
@@ -15,3 +19,8 @@ gmail-tui = "gmail_tui:main"
 [build-system]
 requires = ["uv_build>=0.10.9,<0.11.0"]
 build-backend = "uv_build"
+
+[dependency-groups]
+dev = [
+    "pytest>=9.1.0",
+]
